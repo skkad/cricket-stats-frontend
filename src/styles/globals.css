@@ -1,5 +1,32 @@
 @import "tailwindcss";
 
+.animation-slide-in {
+  animation: slide-in-right 0.7s ease-in-out;
+  transition: all;
+}
+.animation-slide-out {
+  animation: slide-out-right 0.7s ease-in-out;
+  transition: all;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* html,
 body {
   max-width: 100vw;

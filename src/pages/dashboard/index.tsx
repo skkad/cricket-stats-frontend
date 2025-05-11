@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import Toast from "@/components/Toast";
+import React, { useState } from "react";
 
 const Dashboard = () => {
+  const [showToast, setShowToast] = useState<Boolean>(true);
   return (
     <div className="space-y-6 p-4">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -46,6 +48,15 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* <Toast
+        message="Hello World"
+        status="success"
+        open={showToast}
+        onClose={() => setShowToast(false)}
+      />
+      <Toast message="Hello World" status="error" open={showToast} />
+      <Toast message="Hello World" status="info" open={showToast} /> */}
     </div>
   );
 };
