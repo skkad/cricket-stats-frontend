@@ -6,7 +6,7 @@ import React, { useState } from "react";
 const Dashboard = () => {
   const [showToast, setShowToast] = useState<Boolean>(true);
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-6 mx-4 md:mx-22 mt-6">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
         Cricket Statistics Dashboard
       </h1>

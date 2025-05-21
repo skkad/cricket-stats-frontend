@@ -34,7 +34,7 @@ const TeamDetails = () => {
   console.log("team:", team);
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="mx-4 md:mx-22 mt-6 space-y-6">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="cursor-pointer mb-6">
           <a href={`/teams`}>
