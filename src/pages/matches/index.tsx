@@ -372,7 +372,8 @@ const Matches = () => {
 
                   <div className="text-center text-sm">
                     <p className="text-indigo-600 font-semibold">
-                      Team A won by 5 runs
+                      {/* Team A won by 5 runs */}
+                      {ele.match_comment || "Match result pending..."}
                     </p>
                   </div>
 

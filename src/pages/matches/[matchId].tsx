@@ -9,6 +9,7 @@ const Scorecard = () => {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
   const [performanceType, setPerformanceType] = useState<"batting" | "bowling">(
     "batting"
   );
@@ -29,7 +30,10 @@ const Scorecard = () => {
   });
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<any>(null);
-  // const [matchId, setMatchId] = useState<any>(router.query.matchId);
+  const [matchResult, setMatchResult] = useState<any>({
+    result: "",
+    isDraw: false,
+  });
 
   const matchDetails = useApi({
     url: "/matches/get-match",
@@ -69,6 +73,8 @@ const Scorecard = () => {
       setPerformanceType("batting");
       setIsEditing(false);
       setResult(result);
+      setMatchResult({});
+      setIsUpdate(false);
       // setMatchDetails(() => fetchMatchDetails(router.query.matchId));
       // setMatchId(router.query.matchId);
     } catch (error: any) {
@@ -109,6 +115,20 @@ const Scorecard = () => {
       setIsEditing(false);
     } catch (error) {
       console.error("Error saving performance:", error);
+    }
+  };
+
+  const handleMatchResultUpdate = async () => {
+    try {
+      const payload = {
+        match_id: router.query.matchId,
+        match_winner: selectedTeam,
+        comment: matchResult.result,
+        isDraw: matchResult.isDraw,
+      };
+      postAPICall("/matches/update-match-status", "PUT", payload);
+    } catch (error) {
+      console.error("Error updating match result:", error);
     }
   };
 
@@ -376,15 +396,21 @@ const Scorecard = () => {
           {/* Add Performance Button */}
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
           >
             {!isEditing ? "Add Player Performance" : "Back to Scorecard"}
+          </button>
+          <button
+            onClick={() => setIsUpdate(!isUpdate)}
+            className="mt-4 ml-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
+          >
+            {!isUpdate ? "Update Match Result" : "Back to Scorecard"}
           </button>
         </div>
 
         {/* Performance Recording Form */}
         {isEditing && (
-          <div className="mb-8 p-4 border rounded-lg bg-gray-50">
+          <div className="mb-8 p-4 m-auto md:w-[800px]  border rounded-lg bg-gray-50">
             <h2 className="text-lg font-semibold mb-4">
               Record Player Performance
             </h2>
@@ -623,13 +649,83 @@ const Scorecard = () => {
               <div className="flex space-x-4">
                 <button
                   onClick={handlePerformanceSubmit}
-                  className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
                 >
                   Save Performance
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Update Match Result */}
+        {isUpdate && (
+          <div className="mb-8 p-4 m-auto md:w-[800px] border rounded-lg bg-gray-50">
+            <h2 className="text-lg font-semibold mb-4">Update Match Result</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Winning Team
+                </label>
+                <select
+                  className="w-full rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  value={selectedTeam}
+                  onChange={(e) => setSelectedTeam(e.target.value)}
+                >
+                  <option value="">Select Team</option>
+                  <option value={match.team1.team_id}>
+                    {match.team1.name}
+                  </option>
+                  <option value={match.team2.team_id}>
+                    {match.team2.name}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <input
+                    type="checkbox"
+                    checked={matchResult.isDraw}
+                    onChange={(e) =>
+                      setMatchResult({
+                        ...matchResult,
+                        isDraw: e.target.checked,
+                      })
+                    }
+                  />
+                  &nbsp; Did the match end in a draw?
+                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Match Result
+                </label>
+                <textarea
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Enter match result"
+                  value={matchResult.result}
+                  onChange={(e) =>
+                    setMatchResult({ ...matchResult, result: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleMatchResultUpdate}
+                  className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
+                >
+                  Update Result
+                </button>
+                <button
+                  onClick={() => setIsUpdate(false)}
+                  className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -639,7 +735,7 @@ const Scorecard = () => {
         )}
 
         {/* Team 1 Innings */}
-        {!isEditing && (
+        {!isEditing && !isUpdate && (
           <div className="space-y-6 mb-8">
             <div className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-indigo-600" />
@@ -670,7 +766,7 @@ const Scorecard = () => {
         )}
 
         {/* Team 2 Innings */}
-        {!isEditing && (
+        {!isEditing && !isUpdate && (
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-indigo-600" />
