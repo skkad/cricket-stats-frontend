@@ -1,0 +1,92 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "dynamicRoutes": [
+    {
+      "page": "/matches/[matchId]",
+      "regex": "^/matches/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPmatchId": "nxtPmatchId"
+      },
+      "namedRegex": "^/matches/(?<nxtPmatchId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/players/[playerId]",
+      "regex": "^/players/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPplayerId": "nxtPplayerId"
+      },
+      "namedRegex": "^/players/(?<nxtPplayerId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/teams/[teamId]",
+      "regex": "^/teams/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPteamId": "nxtPteamId"
+      },
+      "namedRegex": "^/teams/(?<nxtPteamId>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/matches",
+      "regex": "^/matches(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/matches(?:/)?$"
+    },
+    {
+      "page": "/players",
+      "regex": "^/players(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/players(?:/)?$"
+    },
+    {
+      "page": "/teams",
+      "regex": "^/teams(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/teams(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "RSC",
+    "varyHeader": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch",
+    "prefetchHeader": "Next-Router-Prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "Next-Router-Segment-Prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  },
+  "rewrites": []
+}
