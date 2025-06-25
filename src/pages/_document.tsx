@@ -7,6 +7,7 @@ export default function Document() {
         {process.env.NODE_ENV === "development" && (
           <meta name="next-head-count" content="3" />
         )}
+        <link rel="icon" href="/icons/icon32.png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icons/icon192.png" />
         <meta name="theme-color" content="#317EFB" />
