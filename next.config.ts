@@ -9,7 +9,7 @@ const withPWA = require("next-pwa")({
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
-  output: "export",
+  // output: "export", // using this option will generate a static export of your Next.js app , you will be able to use routing of next.js
 };
 
 export default withPWA(nextConfig);
