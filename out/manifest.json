@@ -1,6 +1,6 @@
 {
   "name": "MyCrickStats",
-  "short_name": "NextApp",
+  "short_name": "MyCrickStats",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
