@@ -8,15 +8,44 @@ import { useRouter } from "next/router";
 //   setProfileView: () => void;
 // }
 
+type PlayerProps = {
+  _id: string;
+  name: string;
+  totalRuns?: number;
+  battingAverage?: number;
+  totalMatches?: number;
+  totalWickets?: number;
+  bowlingEconomy?: number;
+  match_won_as_captain?: number;
+  match_lost_as_captain?: number;
+  battingStrikeRate?: number;
+  player_role?: string;
+  inningsBatted?: number;
+  totalBallsBowled?: number;
+  bowlingAverage?: number;
+  bowlingStrikeRate?: number;
+};
+
+const getOvers = (balls: number) => {
+  const over = Math.floor(balls) + (balls % 6) / 10;
+  return over.toFixed(1);
+};
+
 const Profile = () => {
   // players/get-player/67fc9ec90fc68cbe29fceb61
   const router = useRouter();
   const playerApiResponse = useApi({
     url: "/players/get-player",
     method: "GET",
-    id: router.query.playerId,
+    id:
+      typeof router.query.playerId === "string"
+        ? router.query.playerId
+        : Array.isArray(router.query.playerId)
+        ? router.query.playerId[0]
+        : undefined,
+    // router.query.playerId,
   });
-  const player = playerApiResponse?.data?.data;
+  const player = playerApiResponse?.data?.data as PlayerProps;
   console.log(player);
   console.log(router.query.playerId);
 
@@ -87,10 +116,13 @@ const Profile = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Overs</span>
                 <span className="font-semibold">
-                  {(
+                  {/* {(
                     Math.floor(player?.totalBallsBowled) +
                     (player?.totalBallsBowled % 6) / 10
-                  ).toFixed(1)}
+                  ).toFixed(1)} */}
+                  {player?.totalBallsBowled
+                    ? getOvers(player?.totalBallsBowled)
+                    : "0.0"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
