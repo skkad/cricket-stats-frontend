@@ -1,21 +1,47 @@
 "use client";
 
-import Toast from "@/components/Toast";
-import React, { useState } from "react";
+import React from "react";
 import { useApi } from "@/hooks/useApi";
 
+type Player = {
+  _id: string;
+  name: string;
+  totalRuns?: number;
+  battingAverage?: number;
+  totalMatches?: number;
+  totalWickets?: number;
+  bowlingEconomy?: number;
+  match_won_as_captain?: number;
+  match_lost_as_captain?: number;
+  battingStrikeRate?: number;
+  player_role?: string;
+};
+
+type TopPlayersResponse = {
+  bestBatsman: Player[];
+  bestBowler: Player[];
+  bestAllrounder: Player[];
+  bestCaptain: Player[];
+  bestBattingStrikeRate: Player[];
+};
+
 const Dashboard = () => {
-  const [showToast, setShowToast] = useState<Boolean>(true);
+  // const [showToast, setShowToast] = useState<Boolean>(true);
   const playerList = useApi({
     url: "/players/top-players",
     method: "GET",
     id: "",
   });
-  const bestBatsman = playerList?.data?.data?.bestBatsman[0];
-  const bestBowler = playerList?.data?.data?.bestBowler[0];
-  const bestAllRounder = playerList?.data?.data?.bestAllrounder[0];
-  const bestCaptain = playerList?.data?.data?.bestCaptain[0];
-  const bestStrikeRate = playerList?.data?.data?.bestBattingStrikeRate[0];
+  const bestBatsman = (playerList?.data?.data as TopPlayersResponse)
+    ?.bestBatsman[0];
+  const bestBowler = (playerList?.data?.data as TopPlayersResponse)
+    ?.bestBowler[0];
+  const bestAllRounder = (playerList?.data?.data as TopPlayersResponse)
+    ?.bestAllrounder[0];
+  const bestCaptain = (playerList?.data?.data as TopPlayersResponse)
+    ?.bestCaptain[0];
+  const bestStrikeRate = (playerList?.data?.data as TopPlayersResponse)
+    ?.bestBattingStrikeRate[0];
   console.log("Player List:", bestCaptain);
 
   return (
@@ -32,10 +58,10 @@ const Dashboard = () => {
           </h2>
           <div className="space-y-2">
             {bestBatsman ? (
-              <p className="text-indigo-600">
-                {bestBatsman.name} - {bestBatsman.totalRuns} Runs -{" "}
-                {bestBatsman.battingAverage} Avg - {bestBatsman.totalMatches}{" "}
-                Matches
+              <p className="text-indigo-600 font-medium">
+                {bestBatsman.name} {" | "} {bestBatsman.totalRuns} Runs {" | "}
+                {bestBatsman.battingAverage} Avg {" | "}
+                {bestBatsman.totalMatches} Matches
               </p>
             ) : (
               <p className="text-gray-600">No batting statistics available</p>
@@ -50,10 +76,11 @@ const Dashboard = () => {
           </h2>
           <div className="space-y-2">
             {bestBowler ? (
-              <p className="text-indigo-600">
-                {bestBowler.name} - {bestBowler.totalWickets} Wickets -{" "}
-                {bestBowler.bowlingEconomy} Eco - {bestBowler.totalMatches}{" "}
-                Matches
+              <p className="text-indigo-600 font-medium">
+                {bestBowler.name} {" | "} {bestBowler.totalWickets} Wickets
+                {" | "}
+                {bestBowler.bowlingEconomy} Eco {" | "}
+                {bestBowler.totalMatches} Matches
               </p>
             ) : (
               <p className="text-gray-600">No bowling statistics available</p>
@@ -68,9 +95,10 @@ const Dashboard = () => {
           </h2>
           <div className="space-y-2">
             {bestAllRounder ? (
-              <p className="text-indigo-600">
-                {bestAllRounder.name} - {bestAllRounder.totalRuns} Runs -{" "}
-                {bestAllRounder.totalWickets} Wickets -{" "}
+              <p className="text-indigo-600 font-medium">
+                {bestAllRounder.name} {" | "} {bestAllRounder.totalRuns} Runs{" "}
+                {" | "}
+                {bestAllRounder.totalWickets} Wickets {" | "}
                 {bestAllRounder.totalMatches} Matches
               </p>
             ) : (
@@ -88,9 +116,10 @@ const Dashboard = () => {
           </h2>
           <div className="space-y-2">
             {bestCaptain ? (
-              <p className="text-indigo-600">
-                {bestCaptain.name} - {bestCaptain.totalMatches} Matches -{" "}
-                {bestCaptain.match_won_as_captain} Wins -{" "}
+              <p className="text-indigo-600 font-medium">
+                {bestCaptain.name} {" | "} {bestCaptain.totalMatches} Matches
+                {" | "}
+                {bestCaptain.match_won_as_captain} Wins {" | "}
                 {bestCaptain.match_lost_as_captain} Losses
               </p>
             ) : (
@@ -105,11 +134,11 @@ const Dashboard = () => {
             Best Strike Rate
           </h2>
           <div className="space-y-2">
-            {bestBatsman ? (
-              <p className="text-indigo-600">
-                {bestBatsman.name} - {bestBatsman.totalRuns} Runs -{" "}
-                {bestBatsman.battingAverage} Avg - {bestBatsman.totalMatches}{" "}
-                Matches
+            {bestStrikeRate ? (
+              <p className="text-indigo-600 font-medium">
+                {bestStrikeRate.name} {" | "} {bestStrikeRate.battingStrikeRate}{" "}
+                SR {" | "} {bestStrikeRate.battingAverage} Avg {" | "}
+                {bestStrikeRate.totalMatches} Matches
               </p>
             ) : (
               <p className="text-gray-600">No batting statistics available</p>

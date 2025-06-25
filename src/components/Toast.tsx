@@ -1,9 +1,9 @@
 import { CheckCircle, X, XCircle, TriangleAlert, Info } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 interface ToastProps {
   message: string;
-  open: Boolean; // Control the visibility of the toast
+  open: boolean; // Control the visibility of the toast
   status: "success" | "error" | "info";
   duration?: number; // Duration in milliseconds
   onClose?: () => void; // Callback function to close the toast
@@ -16,7 +16,7 @@ const Toast = ({
   duration = 3000,
   onClose,
 }: ToastProps) => {
-  const [isClosing, setIsClosing] = useState<Boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
   const getStatusStyle = () => {
     switch (status) {
       case "success":
@@ -46,12 +46,13 @@ const Toast = ({
     }
   };
   const { bg, text, icon } = getStatusStyle();
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsClosing(true);
     setTimeout(() => {
       if (onClose) onClose();
     }, 300); // Match the duration of the animation
-  };
+  }, [onClose]);
+
   useEffect(() => {
     if (duration && onClose) {
       const timer = setTimeout(() => {
@@ -60,7 +61,8 @@ const Toast = ({
       }, duration);
       return () => clearTimeout(timer);
     }
-  }, [duration, onClose]);
+  }, [duration, onClose, handleClose]);
+
   return (
     <>
       {open && (

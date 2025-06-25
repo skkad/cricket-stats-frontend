@@ -26,10 +26,17 @@ const TeamDetails = () => {
   const teamDetails = useApi({
     url: "/teams/get-team",
     method: "GET",
-    id: router.query.teamId,
+    id:
+      typeof router.query.teamId === "string" ? router.query.teamId : undefined,
   });
 
-  const team = teamDetails?.data?.data;
+  const team = teamDetails?.data?.data as {
+    name: string;
+    matches: number;
+    wins: number;
+    captain: { _id: string; name: string };
+    players: { _id: string; name: string; player_role: string }[];
+  };
   console.log(router.query.teamId);
   console.log("team:", team);
 
@@ -72,7 +79,9 @@ const TeamDetails = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Win Rate</span>
                 <span className="font-semibold">
-                  {((team?.wins / team?.matches) * 100).toFixed(1) || 0}%
+                  {team?.matches > 0
+                    ? `${((team?.wins / team?.matches) * 100).toFixed(1)}%`
+                    : "NA"}
                 </span>
               </div>
             </div>
@@ -85,18 +94,24 @@ const TeamDetails = () => {
               <h2 className="text-lg font-semibold">Team Players</h2>
             </div>
             <div className="space-y-2">
-              {team?.players?.map((player: any) => (
-                <a
-                  key={player._id}
-                  href={`/players/${player?._id}`}
-                  className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <span className="font-medium">{player?.name}</span>
-                  <span className="text-sm text-gray-600 capitalize">
-                    {player?.player_role}
-                  </span>
-                </a>
-              ))}
+              {team?.players?.map(
+                (player: {
+                  _id: string;
+                  name: string;
+                  player_role: string;
+                }) => (
+                  <a
+                    key={player._id}
+                    href={`/players/${player?._id}`}
+                    className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <span className="font-medium">{player?.name}</span>
+                    <span className="text-sm text-gray-600 capitalize">
+                      {player?.player_role}
+                    </span>
+                  </a>
+                )
+              )}
             </div>
           </div>
         </div>

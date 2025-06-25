@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-interface useAPIProps<T> {
+interface useAPIProps {
   url: string;
   method: string;
-  id?: any;
+  id?: string | undefined | "";
 }
 
-export const useApi = <T = any>({ url, method, id }: useAPIProps<T>) => {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState<Boolean>(true);
-  const [error, setError] = useState<any>(null);
+export const useApi = ({ url, method, id }: useAPIProps) => {
+  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Record<string, unknown> | null>(null);
 
-  const fectchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(
@@ -26,14 +26,19 @@ export const useApi = <T = any>({ url, method, id }: useAPIProps<T>) => {
       setLoading(false);
     } catch (error) {
       console.log("Error fetching data", error);
-      setError(error);
+      // setError(typeof error === "object" && error !== null ? error : null);
+      setError(
+        typeof error === "object" && error !== null
+          ? (error as Record<string, unknown>)
+          : { message: String(error) }
+      );
       setLoading(false);
     }
-  };
+  }, [url, id, method]);
 
   useEffect(() => {
-    fectchData();
-  }, [url, method, id]);
+    fetchData();
+  }, [fetchData]);
 
   return { data, loading, error };
 };

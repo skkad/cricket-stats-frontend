@@ -3,12 +3,12 @@ import React from "react";
 import { useApi } from "@/hooks/useApi";
 import { useRouter } from "next/router";
 
-interface ProfileProps {
-  playerId: string;
-  setProfileView: () => void;
-}
+// interface ProfileProps {
+//   playerId: string;
+//   setProfileView: () => void;
+// }
 
-const Profile = ({ playerId, setProfileView }: ProfileProps) => {
+const Profile = () => {
   // players/get-player/67fc9ec90fc68cbe29fceb61
   const router = useRouter();
   const playerApiResponse = useApi({

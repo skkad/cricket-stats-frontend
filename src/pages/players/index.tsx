@@ -1,17 +1,30 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Mail, Shield, Phone } from "lucide-react";
 import { ROLE_TYPE } from "@/utils/constants";
 import { useApi } from "@/hooks/useApi";
 import Toast from "@/components/Toast";
 // import Profile from "./Profile";
 
+type MatchResultProps = {
+  message: string;
+  status: boolean;
+};
+
+type PayloadProps = {
+  name: string;
+  email: string;
+  mobile_number: number;
+  age: number;
+  player_role: string;
+};
+
 const Players = () => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [profileView, setProfileView] = useState(false);
-  const [playerId, setPlayerId] = useState<string>("");
+  // const [profileView, setProfileView] = useState(false);
+  // const [playerId, setPlayerId] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -27,12 +40,12 @@ const Players = () => {
     mobile_number: "",
     age: "",
   });
-  const [filterData, setFilterData] = useState<any>([]);
-  const [paginatedData, setPaginatedData] = useState<any>([]);
-  const [searchTearm, setSearchTerm] = useState<string>("");
+  const [filterData, setFilterData] = useState<unknown[]>([]);
+  const [paginatedData, setPaginatedData] = useState<unknown[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<MatchResultProps | null>(null);
   const playerList = useApi({
     url: "/players/get-all-players",
     method: "GET",
@@ -42,7 +55,7 @@ const Players = () => {
   const postAPICall = async (
     url: string,
     method_type: string,
-    payload: any
+    payload: PayloadProps
   ) => {
     setLoading(true);
     try {
@@ -65,10 +78,14 @@ const Players = () => {
         age: "",
       });
       setResult(result);
-    } catch (error: any) {
+    } catch (error) {
       console.log("Error fetching data", error);
-      setError(error);
+      setError({ name: "", email: "", role: "", mobile_number: "", age: "" });
       setLoading(false);
+      setResult({
+        message: "Failed to create match. Please try again.",
+        status: false,
+      });
     }
   };
 
@@ -78,7 +95,7 @@ const Players = () => {
     // console.log("Player registration:", formData);
     if (validation()) {
       // console.log("Now we can submit the form");
-      let payload = {
+      const payload = {
         name: formData.name,
         email: formData.email,
         mobile_number: Number(formData.mobile_number),
@@ -136,18 +153,23 @@ const Players = () => {
   };
 
   useEffect(() => {
-    let rawData = playerList?.data?.data || [];
-    const filtered = searchTearm.trim()
-      ? rawData.filter((ele: any) =>
-          Object.values(ele).some((val: any) =>
-            String(val).toLowerCase().includes(searchTearm.toLowerCase())
-          )
+    const rawData = Array.isArray(playerList?.data?.data)
+      ? playerList?.data?.data
+      : [];
+    const filtered = searchTerm.trim()
+      ? rawData.filter(
+          (ele: unknown) =>
+            typeof ele === "object" &&
+            ele !== null &&
+            Object.values(ele).some((val: unknown) =>
+              String(val).toLowerCase().includes(searchTerm.toLowerCase())
+            )
         )
       : rawData;
     setFilterData(filtered);
     setTotalPages(Math.ceil(filtered?.length / 5));
     // setCurrentPage(1);
-  }, [searchTearm, playerList]);
+  }, [searchTerm, playerList]);
 
   useEffect(() => {
     const data = filterData?.slice((currentPage - 1) * 5, currentPage * 5);
@@ -170,14 +192,14 @@ const Players = () => {
   // useEffect(() => {
   //   const data = playerList?.data?.data?.filter((ele: any) =>
   //     Object.values(ele).some((val: any) =>
-  //       String(val).toLowerCase().includes(searchTearm.toLowerCase())
+  //       String(val).toLowerCase().includes(searchTerm.toLowerCase())
   //     )
   //   );
   //   console.log("search data", data);
   //   // setTotalPages(Math.ceil(data?.length / 5));
   //   setFilterData(data);
   //   setCurrentPage(1); // Reset to first page when search term changes
-  // }, [searchTearm]);
+  // }, [searchTerm]);
 
   // console.log("Player List", playerList);
 
@@ -259,7 +281,7 @@ const Players = () => {
                   pattern="[0-9]*"
                   onChange={(e) => {
                     // if(e.target.value)
-                    var regex = /^[a-zA-Z]/g;
+                    const regex = /^[a-zA-Z]/g;
                     // var regex1 = /^\d{10}$/g;
                     if (!regex.test(e.target.value)) {
                       setFormData({
@@ -352,7 +374,7 @@ const Players = () => {
               type="text"
               className="border border-gray-300 rounded-lg px-4 py-2"
               placeholder="Search players..."
-              value={searchTearm}
+              value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
@@ -386,35 +408,45 @@ const Players = () => {
                       </td>
                     </tr>
                   ) : (
-                    paginatedData?.map((ele: any) => (
-                      <tr
-                        className="odd:bg-gray-50 even:bg-white text-left text-xs font-medium  uppercase tracking-wider"
-                        key={ele._id}
-                      >
-                        <td
-                          className="px-6 py-3 cursor-pointer text-indigo-600 hover:text-indigo-900"
-                          // onClick={() => {
-                          //   setProfileView(true);
-                          //   setPlayerId(ele._id);
-                          // }}
+                    paginatedData?.map((ele) => {
+                      const player = ele as {
+                        _id: string;
+                        name: string;
+                        age: number;
+                        player_role: string;
+                        totalRuns: number;
+                        totalWickets: number;
+                      };
+                      return (
+                        <tr
+                          className="odd:bg-gray-50 even:bg-white text-left text-xs font-medium  uppercase tracking-wider"
+                          key={player._id}
                         >
-                          <a href={`/players/${ele._id}`}>{ele.name}</a>
-                        </td>
-                        <td className="px-6 py-3">{ele.age}</td>
-                        <td className="px-6 py-3">
-                          {
-                            ROLE_TYPE.find(
-                              (role) => role.value === ele.player_role
-                            )?.label
-                          }
-                        </td>
-                        <td className="px-6 py-3">
-                          {ele.player_role === "Bowler"
-                            ? `${ele.totalWickets} wickets`
-                            : `${ele.totalRuns} runs`}
-                        </td>
-                      </tr>
-                    ))
+                          <td
+                            className="px-6 py-3 cursor-pointer text-indigo-600 hover:text-indigo-900"
+                            // onClick={() => {
+                            //   setProfileView(true);
+                            //   setPlayerId(player._id);
+                            // }}
+                          >
+                            <a href={`/players/${player._id}`}>{player.name}</a>
+                          </td>
+                          <td className="px-6 py-3">{player.age}</td>
+                          <td className="px-6 py-3">
+                            {
+                              ROLE_TYPE.find(
+                                (role) => role.value === player.player_role
+                              )?.label
+                            }
+                          </td>
+                          <td className="px-6 py-3">
+                            {player.player_role === "Bowler"
+                              ? `${player.totalWickets} wickets`
+                              : `${player.totalRuns} runs`}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -461,7 +493,9 @@ const Players = () => {
 
       <Toast
         message={
-          result?.message ? result.message : "Player registered successfully"
+          typeof result?.message === "string"
+            ? result.message
+            : "Player registered successfully"
         }
         status={result?.status ? "success" : "error"}
         open={result ? true : false}

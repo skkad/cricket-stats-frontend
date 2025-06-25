@@ -1,18 +1,59 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  Trophy,
-  User,
-  Mail,
-  Shield,
-  Phone,
-  Calendar,
-  Disc,
-} from "lucide-react";
+import React, { useState } from "react";
+import { Trophy, Calendar, Disc } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import Toast from "@/components/Toast";
 
-import { ROLE_TYPE } from "@/utils/constants";
+type TeamListProps = {
+  _id: string;
+  name: string;
+};
+
+type MatchesListProps = {
+  _id: string;
+  team1: TeamListProps;
+  team2: TeamListProps;
+  date: string;
+  overs: number;
+  toss_winner: TeamListProps;
+  toss_decision: string;
+  scorecard: {
+    team1: {
+      runs: number;
+      wickets: number;
+      overs: number;
+    };
+    team2: {
+      runs: number;
+      wickets: number;
+      overs: number;
+    };
+  };
+  match_comment?: string;
+};
+
+type MatchResultProps = {
+  message: string;
+  status: boolean;
+};
+
+type MatchPayloadProps = {
+  team1: string;
+  team2: string;
+  date: string;
+  overs: string;
+  toss_winner: string;
+  toss_decision: string;
+};
+type MatchFormError = {
+  team1?: string;
+  team2?: string;
+  date?: string;
+  overs?: string;
+  toss_winner?: string;
+  toss_decision?: string;
+  // Add other fields as needed
+};
 
 const Matches = () => {
   const [show, setShow] = useState(false);
@@ -25,7 +66,7 @@ const Matches = () => {
     toss_winner: "",
     toss_decision: "",
   });
-  const [error, setError] = useState({
+  const [error, setError] = useState<MatchFormError>({
     team1: "",
     team2: "",
     date: "",
@@ -33,12 +74,12 @@ const Matches = () => {
     toss_winner: "",
     toss_decision: "",
   });
-  const [filterData, setFilterData] = useState<any>([]);
-  const [paginatedData, setPaginatedData] = useState<any>([]);
-  const [searchTearm, setSearchTerm] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [result, setResult] = useState<any>(null);
+  // const [filterData, setFilterData] = useState<any>([]);
+  // const [paginatedData, setPaginatedData] = useState<any>([]);
+  // const [searchTearm, setSearchTerm] = useState<string>("");
+  // const [currentPage, setCurrentPage] = useState<number>(1);
+  // const [totalPages, setTotalPages] = useState<number>(1);
+  const [result, setResult] = useState<MatchResultProps | null>(null);
 
   const teamList = useApi({
     url: "/teams/get-all-teams",
@@ -52,12 +93,12 @@ const Matches = () => {
     id: "",
   });
 
-  const [teamsDD, setTeamsDD] = useState<any>([]);
+  // const [teamsDD, setTeamsDD] = useState<any>([]);
 
   const postAPICall = async (
     url: string,
     method_type: string,
-    payload: any
+    payload: MatchPayloadProps
   ) => {
     setLoading(true);
     try {
@@ -80,10 +121,21 @@ const Matches = () => {
         toss_decision: "",
       });
       setResult(result);
-    } catch (error: any) {
+    } catch (error) {
       console.log("Error fetching data", error);
-      setError(error);
+      setError({
+        team1: "",
+        team2: "",
+        date: "",
+        overs: "",
+        toss_winner: "",
+        toss_decision: "",
+      });
       setLoading(false);
+      setResult({
+        message: "Failed to create match. Please try again.",
+        status: false,
+      });
     }
   };
 
@@ -93,7 +145,7 @@ const Matches = () => {
     // console.log("Player registration:", formData);
     if (validation()) {
       // console.log("Now we can submit the form");
-      let payload = {
+      const payload = {
         team1: formData.team1,
         team2: formData.team2,
         date: formData.date,
@@ -181,7 +233,7 @@ const Matches = () => {
                   // required
                 >
                   <option>{"Select team A..."}</option>
-                  {teamList?.data?.data.map((role: any) => (
+                  {(teamList?.data?.data as []).map((role: TeamListProps) => (
                     <option value={role._id} key={role._id}>
                       {role.name}
                     </option>
@@ -204,7 +256,7 @@ const Matches = () => {
                   }
                 >
                   <option>{"Select team B..."}</option>
-                  {teamList?.data?.data.map((role: any) => (
+                  {(teamList?.data?.data as []).map((role: TeamListProps) => (
                     <option value={role._id} key={role._id}>
                       {role.name}
                     </option>
@@ -273,13 +325,13 @@ const Matches = () => {
                     // required
                   >
                     <option>{"Select toss winner..."}</option>
-                    {teamList?.data?.data
+                    {(teamList?.data?.data as [])
                       .filter(
-                        (item: any) =>
+                        (item: TeamListProps) =>
                           item._id === formData.team1 ||
                           item._id === formData.team2
                       )
-                      .map((role: any) => (
+                      .map((role: TeamListProps) => (
                         <option value={role._id} key={role._id}>
                           {role.name}
                         </option>
@@ -342,9 +394,11 @@ const Matches = () => {
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Match Card Template */}
-            {matchesList?.data?.data?.length > 0 ? (
-              matchesList?.data.data.map((ele: any) => (
-                <div className="border rounded-lg p-4 space-y-3">
+            {matchesList?.data?.data &&
+            Array.isArray(matchesList.data.data) &&
+            matchesList?.data?.data?.length > 0 ? (
+              (matchesList.data.data as MatchesListProps[])?.map((ele) => (
+                <div className="border rounded-lg p-4 space-y-3" key={ele._id}>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
                       {new Date(ele.date).toDateString()}

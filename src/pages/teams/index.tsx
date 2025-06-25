@@ -5,6 +5,31 @@ import { Users } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import Toast from "@/components/Toast";
 
+type PaginatedDataProps = {
+  _id: string;
+  name: string;
+  captain: { name: string };
+  players: [];
+  wins: number;
+  matches: number;
+};
+
+type PlayersDDProps = {
+  value: string;
+  label: string;
+};
+
+type PlayersListProps = {
+  _id: string;
+  name: string;
+};
+
+type PayloadProps = {
+  team_name: string;
+  captain_id: string;
+  players_list: string[];
+};
+
 const Teams = () => {
   const [show, setShow] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,14 +43,14 @@ const Teams = () => {
     players: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [filterData, setFilterData] = useState<any>([]);
-  const [paginatedData, setPaginatedData] = useState<any>([]);
-  const [searchTearm, setSearchTerm] = useState<string>("");
+  // const [loading, setLoading] = useState(false);
+  const [filterData, setFilterData] = useState<unknown[]>([]);
+  const [paginatedData, setPaginatedData] = useState<unknown[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [result, setResult] = useState<any>(null);
-  const [playersDD, setPlayersDD] = useState<any>([]);
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [playersDD, setPlayersDD] = useState<unknown[]>([]);
   const teamList = useApi({
     url: "/teams/get-all-teams",
     method: "GET",
@@ -40,9 +65,9 @@ const Teams = () => {
   const postAPICall = async (
     url: string,
     method_type: string,
-    payload: any
+    payload: PayloadProps
   ) => {
-    setLoading(true);
+    // setLoading(true);
     try {
       const respone = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
         method: method_type,
@@ -53,7 +78,7 @@ const Teams = () => {
       });
       const result = await respone.json();
       console.log("Result", result);
-      setLoading(false);
+      // setLoading(false);
       setFormData({
         name: "",
         captain: "",
@@ -61,10 +86,11 @@ const Teams = () => {
       });
       setPlayersDD([]);
       setResult(result);
-    } catch (error: any) {
+    } catch (error) {
       console.log("Error fetching data", error);
-      setError(error);
-      setLoading(false);
+      // setError(error);
+      // setLoading(false);
+      setError({ name: "", captain: "", players: "" });
     }
   };
 
@@ -73,7 +99,7 @@ const Teams = () => {
     // TODO: Implement team creation
     console.log("Team creation:", formData);
     if (validation()) {
-      let payload = {
+      const payload = {
         team_name: formData.name,
         captain_id: formData.captain,
         players_list: formData.players,
@@ -113,18 +139,24 @@ const Teams = () => {
   };
 
   useEffect(() => {
-    let rawData = teamList?.data?.data || [];
-    const filtered = searchTearm.trim()
-      ? rawData.filter((ele: any) =>
-          Object.values(ele).some((val: any) =>
-            String(val).toLowerCase().includes(searchTearm.toLowerCase())
-          )
+    const rawData = Array.isArray(teamList?.data?.data)
+      ? teamList?.data?.data
+      : [];
+
+    const filtered = searchTerm.trim()
+      ? rawData.filter(
+          (ele: unknown) =>
+            typeof ele === "object" &&
+            ele !== null &&
+            Object.values(ele).some((val: unknown) =>
+              String(val).toLowerCase().includes(searchTerm.toLowerCase())
+            )
         )
       : rawData;
     setFilterData(filtered);
     setTotalPages(Math.ceil(filtered?.length / 5));
     // setCurrentPage(1);
-  }, [searchTearm, teamList, show]);
+  }, [searchTerm, teamList, show]);
 
   useEffect(() => {
     const data = filterData?.slice((currentPage - 1) * 5, currentPage * 5);
@@ -205,10 +237,10 @@ const Teams = () => {
                           : [...prev.players, selectedValue],
                       };
                     });
-                    setPlayersDD((prev: any) => {
+                    setPlayersDD((prev) => {
                       return isPresent
-                        ? playersDD.filter(
-                            (ele: any) => ele.value !== selectedValue
+                        ? (playersDD as []).filter(
+                            (ele: PlayersDDProps) => ele.value !== selectedValue
                           )
                         : [
                             ...prev,
@@ -221,15 +253,17 @@ const Teams = () => {
                   }}
                 >
                   {/* TODO: Add player options */}
-                  {playerList.data.data?.map((ele: any) => (
-                    <option
-                      key={ele._id}
-                      value={ele._id}
-                      className="text-sm p-2"
-                    >
-                      {ele.name}
-                    </option>
-                  ))}
+                  {(playerList?.data?.data as [])?.map(
+                    (ele: PlayersListProps) => (
+                      <option
+                        key={ele._id}
+                        value={ele._id}
+                        className="text-sm p-2"
+                      >
+                        {ele.name}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
               <p className="text-sm text-gray-500">
@@ -251,7 +285,7 @@ const Teams = () => {
                   }
                 >
                   {/* <option value="">Select a captain</option> */}
-                  {playersDD?.map((ele: any) => (
+                  {(playersDD as [])?.map((ele: PlayersDDProps) => (
                     <option
                       key={ele.value}
                       value={ele.value}
@@ -295,7 +329,7 @@ const Teams = () => {
               type="text"
               className="border border-gray-300 rounded-lg px-4 py-2"
               placeholder="Search players..."
-              value={searchTearm}
+              value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
@@ -329,7 +363,7 @@ const Teams = () => {
                       </td>
                     </tr>
                   ) : (
-                    paginatedData?.map((ele: any) => (
+                    (paginatedData as PaginatedDataProps[])?.map((ele) => (
                       <tr
                         className="odd:bg-gray-50 even:bg-white text-left text-xs font-medium  uppercase tracking-wider"
                         key={ele._id}
@@ -381,7 +415,9 @@ const Teams = () => {
 
       <Toast
         message={
-          result?.message ? result.message : "Player registered successfully"
+          typeof result?.message === "string"
+            ? result.message
+            : "Player registered successfully"
         }
         status={result?.status ? "success" : "error"}
         open={result ? true : false}
