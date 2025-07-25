@@ -23,11 +23,11 @@ const TeamDetails = () => {
   const [modalAction, setModalAction] = useState<"add" | "remove">("add");
   const [selectedPlayer, setSelectedPlayer] = useState("");
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
-  const [error, setError] = useState({
-    name: "",
-    captain: "",
-    players: "",
-  });
+  // const [error, setError] = useState({
+  //   name: "",
+  //   captain: "",
+  //   players: "",
+  // });
   // TODO: Fetch team data using id
   // const team = {
   //   name: "Super Kings",
@@ -90,7 +90,7 @@ const TeamDetails = () => {
       console.log("Error fetching data", error);
       // setError(error);
       // setLoading(false);
-      setError({ name: "", captain: "", players: "" });
+      // setError({ name: "", captain: "", players: "" });
     }
   };
 
