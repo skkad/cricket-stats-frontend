@@ -1,15 +1,7 @@
 {
-  "/_error": "pages/_error.js",
   "/_app": "pages/_app.js",
-  "/dashboard": "pages/dashboard.html",
+  "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/matches": "pages/matches.html",
-  "/players/[playerId]": "pages/players/[playerId].html",
-  "/api/hello": "pages/api/hello.js",
-  "/matches/[matchId]": "pages/matches/[matchId].html",
-  "/teams/[teamId]": "pages/teams/[teamId].html",
-  "/players": "pages/players.html",
-  "/": "pages/index.html",
-  "/teams": "pages/teams.html",
-  "/404": "pages/404.html"
+  "/teams": "pages/teams.js",
+  "/teams/[teamId]": "pages/teams/[teamId].js"
 }
