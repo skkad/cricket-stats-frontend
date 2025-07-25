@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 // import { useParams, Link } from "react-router-dom";
-import {
-  Users,
-  Trophy,
-  User,
-  ArrowLeft,
-  X,
-  XSquareIcon,
-  Plus,
-  Minus,
-} from "lucide-react";
+import { Users, Trophy, User, ArrowLeft, X, Plus, Minus } from "lucide-react";
 import { useRouter } from "next/router";
 import { useApi } from "@/hooks/useApi";
 import Toast from "@/components/Toast";
